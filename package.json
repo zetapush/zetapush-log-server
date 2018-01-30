@@ -1,0 +1,32 @@
+{
+  "name": "zetapush-log-server",
+  "version": "1.0.0",
+  "description": "Experimental Log Server",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "start": "node app.js",
+    "start:watch": "nodemon",
+    "precommit": "lint-staged",
+    "prettify": "prettier --single-quote --trailing-comma all --write 'src/**/*.{*css,js,ts}'"
+  },
+  "dependencies": {
+    "@reactivex/rxjs": "^5.5.6",
+    "express": "^4.16.2",
+    "fetch-cookie": "^0.7.0",
+    "node-fetch": "^1.7.3",
+    "zetapush-js": "^3.3.0"
+  },
+  "devDependencies": {
+    "lint-staged": "^6.0.0",
+    "nodemon": "^1.12.1",
+    "prettier": "^1.9.1",
+    "eslint": "4.16.0"
+  },
+  "lint-staged": {
+    "src/**/*.{*css,js,ts}": [
+      "prettier --single-quote --trailing-comma all --write",
+      "git add"
+    ]
+  }
+}
