@@ -5,7 +5,7 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "start": "node app.js",
+    "start": "node src/app.js",
     "start:watch": "nodemon",
     "precommit": "lint-staged",
     "prettify": "prettier --single-quote --trailing-comma all --write 'src/**/*.{*css,js,ts}'"
