@@ -12,6 +12,10 @@ const APP_CONFIG = {
     apiUrl: "<API-URL>",
     username: "<USERNAME>",
     password: "<PASSWORD>"
+  },
+  elatic: {
+    host: '<ELASTIC-URL>',
+    log: '<LOG-TYPE>',
   }
 };
 

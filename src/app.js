@@ -5,11 +5,10 @@ const NodeJSTransports = require('zetapush-cometd/lib/node/Transports');
 const Rx = require('@reactivex/rxjs');
 
 const APP_CONFIG = require('./config');
+const esClient = require('./elastic');
 const app = express();
 
 const LOCATION_PATTERN = /^(.*)\|(.*)\:(.*)$/;
-let traces = [];
-let subject = new Rx.BehaviorSubject([]);
 
 async function bootstrap() {
   await app.listen(5000);
@@ -63,12 +62,31 @@ async function connectToSandbox() {
 
   // Enable debug and subscription for all deployed services
   const servers = await getServers(APP_CONFIG.sandboxId);
+  let type;
 
   services.forEach(async deploymentId => {
     await enableDebug(servers, deploymentId);
-    createTraceObservable(client, deploymentId).subscribe(traces =>
-      subject.next(traces),
-    );
+    createTraceObservable(client, deploymentId).subscribe(trace => {
+      type = trace.type.toLowerCase();
+
+      if (!isString(trace.data)) {
+        trace.data = JSON.stringify(trace.data);
+      }
+
+      esClient.index(
+        {
+          index: APP_CONFIG.sandboxId.toLowerCase(),
+          type: 'trace',
+          body: trace,
+        },
+        (err, res, status) => {
+          if (err) {
+            console.log(err);
+            console.log('--------------------------');
+          }
+        },
+      );
+    });
   });
 }
 
@@ -124,9 +142,7 @@ function createTraceObservable(
             ts: Date.now(),
           };
 
-          traces = [...traces, trace];
-
-          observer.next(traces);
+          observer.next(trace);
         },
       },
     });
@@ -172,6 +188,10 @@ async function getServers(sandboxId) {
 function parseTraceLocation(location) {
   const [, recipe, version, path] = LOCATION_PATTERN.exec(location);
   return { recipe, version, path };
+}
+
+function isString(data) {
+  return typeof data === 'string' || data instanceof String;
 }
 
 // Launch the application
